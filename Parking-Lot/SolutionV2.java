@@ -14,6 +14,7 @@ class Vehicle<T extends VehicleType, M, N>{
   
   Vehicle(T t, M m, N n){
     setType(t); setModel(m); setNumberPlate(n);
+    info();
   }
   
   public void setType(T t){ this.type = t; } 
@@ -25,7 +26,7 @@ class Vehicle<T extends VehicleType, M, N>{
   public void setNumberPlate(N n){ this.numberPlate = n; }
   public N getNumberPlate(){ return this.numberPlate; }
   
-  public void info(){
+  private void info(){
     String vt = getType().getName();
     System.out.println(
       "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" +
@@ -51,6 +52,7 @@ class Parking{
       "\n" + getParkingSlots() +
       "\n*****************************************************************"
     );
+    info();
   }
   
   public void setParkingSlots(HashMap<VehicleType, Integer> ps){ this.parkingSlots = ps; }
@@ -64,37 +66,48 @@ class Parking{
     return total;
   }
   
-  public void setFreeParkingSlots() { 
-    this.freeParkingSlots = new HashMap<VehicleType, Integer>();
-    this.freeParkingSlots.putAll(getParkingSlots()); 
+  private void setFreeParkingSlots() { 
+    this.freeParkingSlots = new HashMap<VehicleType, Integer>(); this.freeParkingSlots.putAll(getParkingSlots()); 
   }
   
+  private HashMap<VehicleType, Integer> getFreeParkingSlots(){ return this.freeParkingSlots; }
+  
   public void park(Vehicle<VehicleType, String, String> v){
-    if (this.freeParkingSlots.keySet().contains(v.type)){
-      int count = this.freeParkingSlots.get(v.type).intValue();
-      if(calTotal(this.freeParkingSlots) == 0 ){
-        System.out.println("No Free Parking Slots left!");
-        System.out.println("Parking NOT Possible :(");
-      }else if ( count == 0 ){
-        System.out.println("No Free Parking Slots for " + v.type.getName() + "!");
-      } else {
-        this.freeParkingSlots.put(v.type, count - 1);
-        System.out.println(v.type.getName() + " is parked!");
-      }
+    
+    if( this.isFull() ){
+      System.out.println("No Free Parking Slots left! \nParking NOT Possible :(");
+      return;
     }
+    
+    int count = this.freeParkingSlots.get(v.type).intValue();
+    if( count == 0 ){
+      System.out.println("No Free Parking Slots for " + v.type.getName() + "!");
+      return;
+    }
+    this.freeParkingSlots.put(v.type, count - 1);
+    System.out.println(v.type.getName() + " is parked!");
+    
+  }
+  
+  private boolean isFull(){
+    return calTotal(this.freeParkingSlots) == 0;
+  }
+  
+  private boolean isFree(){
+    return calTotal(getParkingSlots()) == calTotal(this.freeParkingSlots);
   }
   
   public void info(){
     int totalSlots = calTotal(getParkingSlots());
-    int totalFreeSlots = calTotal(this.freeParkingSlots);
+    int totalFreeSlots = calTotal(getFreeParkingSlots());
     System.out.println(
       "°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°" +
       "\nTotal Parking Slots: " + totalSlots
     );
     System.out.println("Parking Slots: " + getParkingSlots() );
     System.out.println("Total Free Parking Slots: " + totalFreeSlots );
-    System.out.println("Free Parking Slots: " + this.freeParkingSlots );
-    if(totalSlots == totalFreeSlots ){
+    System.out.println("Free Parking Slots: " + getFreeParkingSlots() );
+    if( isFree() ){
       System.out.println("All Parking Slots are Free :)");
     }
     System.out.println("°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°");
@@ -104,19 +117,18 @@ class Parking{
 class Solution {
   public static void main(String[] args) {
     
+    HashMap<VehicleType, Integer> parkingSlots = new HashMap<VehicleType, Integer>();
+    parkingSlots.put(VehicleType.MOPED, 1);
+    parkingSlots.put(VehicleType.CAR, 2);
+    parkingSlots.put(VehicleType.VAN, 3);
+    Parking parking = new Parking(parkingSlots);
+    
     ArrayList<Vehicle<VehicleType, String, String>> vehicles = new ArrayList<Vehicle<VehicleType, String, String>>();
     vehicles.add(new Vehicle<VehicleType, String, String>(VehicleType.CAR, "VW", "DE MA 424982"));
     vehicles.add(new Vehicle<VehicleType, String, String>(VehicleType.VAN, "Volvo", "FR NI 29812120"));
     vehicles.add(new Vehicle<VehicleType, String, String>(VehicleType.MOPED, "Ducati", "IT SI 3832919"));
     vehicles.add(new Vehicle<VehicleType, String, String>(VehicleType.MOPED, "Kawasaki", "DE NS 8787888"));
     
-    HashMap<VehicleType, Integer> parkingSlots = new HashMap<VehicleType, Integer>();
-    parkingSlots.put(VehicleType.MOPED, 1);
-    parkingSlots.put(VehicleType.CAR, 2);
-    parkingSlots.put(VehicleType.VAN, 3);
-    
-    Parking parking = new Parking(parkingSlots);
-    parking.info();
     for(Vehicle<VehicleType, String, String> v : vehicles ){
       parking.park(v);
     }
