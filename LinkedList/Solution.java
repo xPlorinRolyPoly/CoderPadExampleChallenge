@@ -14,6 +14,7 @@ class LinkedList{
 
   private Node first;
   private Node last;
+  private int size;
   
   public Node getLast(){
     System.out.println("Node Last value: " + this.last.value);
@@ -35,6 +36,7 @@ class LinkedList{
       node.next = this.first;
       this.first = node;
     }
+    this.size++;
   }
   
   public void addLast(int item){
@@ -46,6 +48,7 @@ class LinkedList{
       this.last.next = node;
       this.last = node;
     }
+    this.size++;
   }
   
   public int indexOf(int item){
@@ -68,11 +71,12 @@ class LinkedList{
     if (this.isEmpty()) throw new NoSuchElementException();
     if(this.first == this.last){
       this.first = this.last = null;
-      return;
+    } else {
+      var second = first.next;
+      this.first.next = null;
+      this.first = second;
     }
-    var second = first.next;
-    this.first.next = null;
-    this.first = second;
+    this.size--;
   }
   
   public void removeLast(){
@@ -80,12 +84,12 @@ class LinkedList{
     if(this.isEmpty()) throw new NoSuchElementException();
     if(this.first == this.last){
       this.first = this.last = null;
-      return;
+    } else {
+      var previous = this.getPrevious(this.last);
+      this.last = previous;
+      this.last.next = null;
     }
-    
-    var previous = this.getPrevious(this.last);
-    this.last = previous;
-    this.last.next = null;
+    this.size--;
   }
   
   private Node getPrevious(Node node){
@@ -96,10 +100,23 @@ class LinkedList{
     }
     return null;
   }
+
+  public int[] toArray(){
+    int[] array = new int[this.size];
+    var current = this.first;
+    var index = 0;
+    while (current != null) {
+      array[index++] = current.value;
+      current = current.next;
+    }
+    return array;
+  }
   
   private boolean isEmpty(){
     return first == null;
   }
+
+  public int size(){ return this.size; }
 }
 
 class Solution {
@@ -107,15 +124,19 @@ class Solution {
     var list = new LinkedList();
     list.addLast(10);
     list.addLast(20); list.addLast(30); list.addFirst(5);
+    System.out.println(list.size());
     list.getFirst(); list.getLast();
     System.out.println(list.indexOf(5));
     System.out.println(list.indexOf(30));
     System.out.println(list.indexOf(50));
     System.out.println(list.contains(40));
     System.out.println(list.contains(10));
+    var array = list.toArray();
+    System.out.println(Arrays.toString(array));
     list.removeFirst();
     list.getFirst();
     list.removeLast();
     list.getLast();
+    System.out.println(list.size());
   }
 }
