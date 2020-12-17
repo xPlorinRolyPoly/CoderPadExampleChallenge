@@ -111,6 +111,19 @@ class LinkedList{
     }
     return array;
   }
+
+  public void reverse(){
+    // [10 -> 20 -> 30] --> [10 <- 20 <- 30]
+    //  p      c     n  -->   n     c     p
+    var previous = this.first;
+    var current = this.first.next;
+    while (current != null) {
+      var next = current.next;
+      current.next = previous;
+      previous = current;
+      current = next;
+    }
+  }
   
   private boolean isEmpty(){
     return first == null;
